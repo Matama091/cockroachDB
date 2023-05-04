@@ -1,0 +1,68 @@
+version: "3.9"
+services:
+  cockroach_seed_node:
+    image: cockroachdb/cockroach:v22.2.5
+    ports:
+      - "26257:26257"
+      - "8080:8080"
+    volumes:
+      - certs_volume:/cockroach/cockroach-certs:rw
+    # hostname: node1
+    networks:
+      cockroach_cluster_network:
+        aliases:
+          - node1
+    entrypoint: >-
+      bash -c "
+        test -d /cockroach/cockroach-certs/certs || mkdir /cockroach/cockroach-certs/certs &&
+        test -d /cockroach/cockroach-certs/ca || mkdir /cockroach/cockroach-certs/ca &&
+        rm -rf /cockroach/cockroach-certs/certs/* /cockroach/cockroach-certs/ca/* &&
+
+        cockroach cert create-ca --certs-dir=/cockroach/cockroach-certs/certs --ca-key=/cockroach/cockroach-certs/ca/ca.key &&
+        cockroach cert create-node localhost node1 node2 node3 --certs-dir=/cockroach/cockroach-certs/certs --ca-key=/cockroach/cockroach-certs/ca/ca.key &&
+        cockroach cert create-client root --certs-dir=/cockroach/cockroach-certs/certs --ca-key=/cockroach/cockroach-certs/ca/ca.key &&
+        cockroach cert create-client myuser --certs-dir=/cockroach/cockroach-certs/certs --ca-key=/cockroach/cockroach-certs/ca/ca.key &&
+
+        cockroach start --certs-dir=/cockroach/cockroach-certs/certs --store=/cockroach/cockroach-data --advertise-addr=node1 --join=node1,node2,node3
+      "
+
+  cockroach_node2:
+    image: cockroachdb/cockroach:v22.2.5
+    depends_on:
+      - cockroach_seed_node
+    volumes:
+      - certs_volume:/cockroach/cockroach-certs:ro
+    # hostname: node2
+    networks:
+      cockroach_cluster_network:
+        aliases:
+          - node2
+    entrypoint: >-
+      bash -c "
+        sleep 3 &&
+        cockroach start --certs-dir=/cockroach/cockroach-certs/certs --store=/cockroach/cockroach-data --advertise-addr=node2 --join=node1,node2,node3
+      "
+
+  cockroach_node3:
+    image: cockroachdb/cockroach:v22.2.5
+    depends_on:
+      - cockroach_seed_node
+    volumes:
+      - certs_volume:/cockroach/cockroach-certs:ro
+    # hostname: node3
+    networks:
+      cockroach_cluster_network:
+        aliases:
+          - node3
+    entrypoint: >-
+      bash -c "
+        sleep 3 &&
+        cockroach start --certs-dir=/cockroach/cockroach-certs/certs --store=/cockroach/cockroach-data --advertise-addr=node3 --join=node1,node2,node3
+      "
+
+networks:
+  cockroach_cluster_network:
+    driver: bridge
+
+volumes:
+  certs_volume: {}

@@ -3,10 +3,8 @@ services:
 
   # cockroach1
   cockroach1:
-    build:
-      context: ./docker
-      dockerfile: Dockerfile
     image: cockroachdb/cockroach:v22.2.5
+    hostname: cockroach1
     ports:
       - "26257:26257"
       - "8080:8080"
@@ -20,45 +18,34 @@ services:
       - ./init.sh:/init.sh
     command: >-
       bash -c "
-      echo "CCCC"
-      cockroachdb/cockroach:v22.2.5 start \
-      --insecure \
-      --join=roach1,roach2,roach3
+      cockroach start --insecure --join=cockroach1,cockroach2,cockroach3
       "
 
   # cockroach2
   cockroach2:
-    build:
-      context: ./docker
-      dockerfile: Dockerfile
-    # image: cockroachdb/cockroach:v22.2.5
+    image: cockroachdb/cockroach:v22.2.5
     depends_on:
       - cockroach1
     tty: true
     volumes:
       - cockroach2:/cockroach/cockroach-data
-    # hostname: cockroach2
+    hostname: cockroach2
     networks:
       cluster_network:
         aliases:
           - cockroach2
     command: >-
       bash -c "
-      cockroachdb/cockroach:v22.2.5 start \
-      --insecure \
-      --join=roach1,roach2,roach3
+      cockroach start --insecure --join=cockroach1,cockroach2,cockroach3
       "
 
   cockroach3:
-    build:
-      context: ./docker
-      dockerfile: Dockerfile
-    # image: cockroachdb/cockroach:v22.2.5
+    image: cockroachdb/cockroach:v22.2.5
     depends_on:
       - cockroach1
     volumes:
       - cockroach3:/cockroach/cockroach-data
-    # hostname: cockroach3
+    hostname: cockroach3
     tty: true
     networks:
       cluster_network:
@@ -66,9 +53,7 @@ services:
           - cockroach3
     command: >-
       bash -c "
-      cockroachdb/cockroach:v22.2.5 start \
-      --insecure \
-      --join=roach1,roach2,roach3
+      cockroach start --insecure --join=cockroach1,cockroach2,cockroach3
       "
 
 networks:

@@ -8,9 +8,9 @@ LOGS=$(COMPOSE) logs
 STOP=$(COMPOSE) stop
 RM=$(COMPOSE) rm
 DOWN=$(COMPOSE) down
-NODE=$(EXEC) node
-NODE2=$(EXEC) node2
-NODE3=$(EXEC) node3
+NODE=$(EXEC) cockroach1
+NODE2=$(EXEC) cockroach2
+NODE3=$(EXEC) cockroach3
 
 docker/build: ## docker build
 	$(BUILD)
