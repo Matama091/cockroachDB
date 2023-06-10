@@ -1,4 +1,4 @@
-# FROM cockroachdb/cockroach:v21.1.7
+FROM cockroachdb/cockroach:v21.1.7
 
 # RUN cockroach start --insecure --join=cockroach1,cockroach2,cockroach3 --background
 
