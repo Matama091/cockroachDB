@@ -1,7 +1,6 @@
-FROM golang:1.20
+# FROM cockroachdb/cockroach:v21.1.7
 
-ENV GO111MODULE on
+# RUN cockroach start --insecure --join=cockroach1,cockroach2,cockroach3 --background
 
-RUN apt-get update && apt-get install -y net-tools iproute2 iputils-ping iperf3 nano tcpdump
-
-RUN ip a
+# RUN microdnf install bind-utils jq python3-pip \
+#     && pip3 install pgcli

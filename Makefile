@@ -12,6 +12,8 @@ NODE=$(EXEC) cockroach1
 NODE2=$(EXEC) cockroach2
 NODE3=$(EXEC) cockroach3
 
+all: docker/up cockroach/init
+
 docker/build: ## docker build
 	$(BUILD)
 
@@ -32,6 +34,9 @@ docker/down: ## docker down
 
 docker/volume/prune: ### docker volume prune
 	docker volume prune
+
+cockroach: ##cockroach login
+	$(NODE) bash cockroach sql --insecure
 
 node/bash: ## node container bash
 	$(NODE) bash
